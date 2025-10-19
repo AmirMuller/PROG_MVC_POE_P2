@@ -29,4 +29,4 @@ namespace PROG_MVC_POE_P2.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
-}
+}// the end of the home controller
