@@ -107,7 +107,7 @@ namespace PROG_MVC_POE_P2.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // Optional Approve/Reject
+        
         public IActionResult Approve(int id, string status)
         {
             var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
