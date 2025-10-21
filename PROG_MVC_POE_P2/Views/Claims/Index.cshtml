@@ -1,0 +1,40 @@
+﻿@model List<PROG_MVC_POE_P2.Models.Claim>
+
+@{
+    ViewBag.Title = "Claims List";
+    var lecturers = ViewBag.Lecturers as List<PROG_MVC_POE_P2.Models.LecturerModel>;
+}
+
+<h2>Submitted Claims</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No claims have been submitted yet.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Claim ID</th>
+                <th>Lecturer</th>
+                <th>Claim Date</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in Model)
+            {
+                var lecturer = lecturers?.FirstOrDefault(l => l.LecturerId == claim.LecturerId);
+                <tr>
+                    <td>@claim.ClaimId</td>
+                    <td>@(lecturer != null ? lecturer.Fname + " " + lecturer.Lname : "Unknown")</td>
+                    <td>@claim.ClaimTime.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@claim.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-action="SubmitClaim" class="btn btn-primary">Submit New Claim</a>
