@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Claim Details";
+    var payment = ViewBag.Payment as PROG_MVC_POE_P2.Models.Payment;
 }
 
 <h1>Claim Details</h1>
@@ -16,7 +17,31 @@
 
     <dt class="col-sm-2">Status</dt>
     <dd class="col-sm-10">@Model.Status</dd>
+
+    <dt class="col-sm-2">Hours</dt>
+    <dd class="col-sm-10">@payment?.NumHours</dd>
+
+    <dt class="col-sm-2">Rate</dt>
+    <dd class="col-sm-10">@payment?.Rate</dd>
+
+    <dt class="col-sm-2">Total</dt>
+    <dd class="col-sm-10">@((payment?.NumHours ?? 0) * (payment?.Rate ?? 0))</dd>
+
+    @if (!string.IsNullOrEmpty(Model.FilePath))
+    {
+        <dt class="col-sm-2">Uploaded File</dt>
+        <dd class="col-sm-10">
+            <a href="@Model.FilePath" target="_blank">View File</a>
+        </dd>
+    }
+    else
+    {
+        <dt class="col-sm-2">Uploaded File</dt>
+        <dd class="col-sm-10">No file uploaded</dd>
+    }
 </dl>
 
-<a asp-action="Edit" asp-route-id="@Model.ClaimId">Edit</a> |
-<a asp-action="Index">Back to List</a>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.ClaimId" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

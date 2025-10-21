@@ -9,4 +9,5 @@ public class Claim
     public int PayId { get; set; }
     public DateTime ClaimTime { get; set; }
     public string Status { get; set; }
+    public string? FilePath { get; set; }
 }

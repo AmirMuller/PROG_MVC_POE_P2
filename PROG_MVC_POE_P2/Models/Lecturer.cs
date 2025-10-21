@@ -1,6 +1,6 @@
 ﻿namespace PROG_MVC_POE_P2.Models;
 
-public class Lecurer
+public class Lecturer
 {
     public int LecturerId { get; set; }
     public string Name { get; set; }

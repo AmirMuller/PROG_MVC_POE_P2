@@ -4,5 +4,5 @@ public class Payment
 {
     public int PayId { get; set; }
     public int NumHours { get; set; }
-    public double rate { get; set; }
+    public double Rate { get; set; }
 }

@@ -1,38 +1,53 @@
-﻿@model PROG_MVC_POE_P2.Models.Claim
-
-@{
+﻿@{
     ViewData["Title"] = "Create Claim";
 }
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success text-center">
+        @TempData["SuccessMessage"]
+    </div>
+}
+@* You might also want to add an error message display here *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger text-center">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 
 <h1>Create Claim</h1>
 <hr />
 
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <form asp-action="Create" enctype="multipart/form-data">
+
+            @* Add a validation summary to see errors *@
+            <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="form-group">
-                <label asp-for="LecturerId" class="control-label"></label>
-                <input asp-for="LecturerId" class="form-control" />
-                <span asp-validation-for="LecturerId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="ClaimTime" class="control-label"></label>
-                <input asp-for="ClaimTime" type="datetime-local" class="form-control" />
-                <span asp-validation-for="ClaimTime" class="text-danger"></span>
+                <label>Lecturer ID</label>
+                <input type="number" name="LecturerId" class="form-control" />
             </div>
 
             <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <label>Number of Hours</label>
+                <input type="number" name="numHours" class="form-control" step="1" />
             </div>
 
-            <div class="form-group mt-3">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <div class="form-group">
+                <label>Rate per Hour</label>
+                <input type="number" name="rate" class="form-control" step="0.1" />
             </div>
+
+            <div class="form-group">
+                <label>Upload Supporting Document</label>
+                <input type="file" name="uploadedFile" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Create</button>
         </form>
     </div>
 </div>
@@ -40,9 +55,3 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}
