@@ -1,4 +1,6 @@
-﻿namespace PROG_MVC_POE_P2.Models
+﻿using System;
+
+namespace PROG_MVC_POE_P2.Models
 {
     public class Claim
     {

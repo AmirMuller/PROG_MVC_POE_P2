@@ -1,0 +1,22 @@
+﻿@model PROG_MVC_POE_P2.Models.Claim
+
+@{
+    ViewData["Title"] = "Claim Details";
+}
+
+<h1>Claim Details</h1>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Lecturer ID</dt>
+    <dd class="col-sm-10">@Model.LecturerId</dd>
+
+    <dt class="col-sm-2">Claim Time</dt>
+    <dd class="col-sm-10">@Model.ClaimTime.ToString("f")</dd>
+
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">@Model.Status</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.ClaimId">Edit</a> |
+<a asp-action="Index">Back to List</a>

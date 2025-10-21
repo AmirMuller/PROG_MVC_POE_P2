@@ -1,0 +1,46 @@
+﻿@model IEnumerable<PROG_MVC_POE_P2.Models.Claim>
+
+@{
+    ViewData["Title"] = "Submit a Payment Claim";
+}
+
+<div class="text-center">
+    <h1>Submit a Payment Claim</h1>
+
+    <p><a asp-action="Create" class="btn btn-primary">Submit New Claim</a></p>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Lecturer ID</th>
+                <th>Claim Time</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.LecturerId</td>
+                        <td>@item.ClaimTime.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@item.Status</td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ClaimId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.ClaimId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.ClaimId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="4">No claims found.</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+</div>
