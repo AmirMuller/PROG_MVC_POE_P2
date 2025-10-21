@@ -24,7 +24,6 @@
     <div class="col-md-4">
         <form asp-action="Create" enctype="multipart/form-data">
 
-            @* Add a validation summary to see errors *@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="form-group">
@@ -39,7 +38,7 @@
 
             <div class="form-group">
                 <label>Rate per Hour</label>
-                <input type="number" name="rate" class="form-control" step="0.1" />
+                <input type="number" name="rate" class="form-control" step="10" />
             </div>
 
             <div class="form-group">

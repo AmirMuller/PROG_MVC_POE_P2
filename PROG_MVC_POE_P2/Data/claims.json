@@ -1,0 +1,10 @@
+[
+  {
+    "ClaimId": 1,
+    "LecturerId": 9,
+    "PayId": 1,
+    "ClaimTime": "2025-10-22T00:35:54.3947173+02:00",
+    "Status": "Pending",
+    "FilePath": "/uploads/97b873d4-1d2a-4732-bb54-acaeac6bd4c7_poe3.txt"
+  }
+]
