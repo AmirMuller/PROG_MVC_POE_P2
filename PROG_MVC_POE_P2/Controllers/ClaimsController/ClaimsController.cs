@@ -251,15 +251,15 @@ namespace PROG_MVC_POE_P2.Controllers
         }
 
         // POST: Claim/Delete
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int ClaimId)
         {
             //LOAD DATA
             var claims = LoadClaims();
             var payments = LoadPayments();
 
-            var claim = claims.FirstOrDefault(c => c.ClaimId == id);
+            var claim = claims.FirstOrDefault(c => c.ClaimId == ClaimId);
             if (claim != null)
             {
                 var payment = payments.FirstOrDefault(p => p.PayId == claim.PayId);
