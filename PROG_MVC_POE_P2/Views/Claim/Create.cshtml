@@ -8,7 +8,7 @@
         @TempData["SuccessMessage"]
     </div>
 }
-@* You might also want to add an error message display here *@
+
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger text-center">
@@ -27,8 +27,8 @@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="form-group">
-                <label>Lecturer ID</label>
-                <input type="number" name="LecturerId" class="form-control" />
+                <label for="LecturerId" class="control-label">Lecturer Name</label>
+                @Html.DropDownList("LecturerId", (SelectList)ViewBag.LecturerList, "-- Select Your Name --", new { @class = "form-control", required = "required" })
             </div>
 
             <div class="form-group">
@@ -39,6 +39,11 @@
             <div class="form-group">
                 <label>Rate per Hour</label>
                 <input type="number" name="rate" class="form-control" step="10" />
+            </div>
+
+            <div class="form-group">
+                <label>Message</label>
+                <textarea name="message" class="form-control" rows="3"></textarea>
             </div>
 
             <div class="form-group">

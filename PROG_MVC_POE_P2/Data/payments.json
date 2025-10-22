@@ -1,12 +1,1 @@
-[
-  {
-    "PayId": 1,
-    "NumHours": 179,
-    "Rate": 280
-  },
-  {
-    "PayId": 2,
-    "NumHours": 17,
-    "Rate": 190
-  }
-]
+[]

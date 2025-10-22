@@ -1,0 +1,466 @@
+using Microsoft.AspNetCore.Mvc;
+using PROG_MVC_POE_P2.Models;
+using System.Linq;
+using System.Collections.Generic;
+using System;
+
+namespace PROG_MVC_POE_P2.Controllers
+{
+    public class ClaimController : Controller
+    {
+        // Mock lecturer data
+        private static List<Lecurer> _lecturers = new()
+        {
+            new Lecurer { LecturerId = 1, Name = "Dr. John Doe", Faculty = "Humanities", Position = "Senior Lecturer" },
+            new Lecurer { LecturerId = 2, Name = "Prof. Jane Smith", Faculty = "Information Technology", Position = "Professor" },
+            new Lecurer { LecturerId = 3, Name = "Mr. Sam Brown", Faculty = "Commerce", Position = "Lecturer" }
+        };
+
+        // In-memory storage
+        private static List<Claim> _claims = new();
+        private static List<Payment> _payments = new();
+
+        // GET: Claim/Index
+        public IActionResult Index()
+        {
+            ViewBag.Payments = _payments;
+            return View(_claims);
+        }
+
+        // GET: Claim/Create
+        public IActionResult Create()
+        {
+            ViewBag.Lecturers = _lecturers;
+            return View();
+        }
+
+        // POST: Claim/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Create(Claim claim, Payment payment)
+        {
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Lecturers = _lecturers;
+                return View(claim);
+            }
+
+            // Assign a PayId for the payment
+            payment.PayId = _payments.Any() ? _payments.Max(p => p.PayId) + 1 : 1;
+            _payments.Add(payment);
+
+            // Link the claim to its payment
+            claim.PayId = payment.PayId;
+            claim.ClaimId = _claims.Any() ? _claims.Max(c => c.ClaimId) + 1 : 1;
+            claim.Status = "Pending";
+            claim.ClaimTime = claim.ClaimTime == default ? DateTime.Now : claim.ClaimTime;
+
+            _claims.Add(claim);
+
+            TempData["SuccessMessage"] = "Claim submitted successfully!";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Claim/Details/5
+        public IActionResult Details(int id)
+        {
+            var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
+            if (claim == null) return NotFound();
+
+            var payment = _payments.FirstOrDefault(p => p.PayId == claim.PayId);
+            ViewBag.Payment = payment;
+            return View(claim);
+        }
+
+        // GET: Claim/Edit/5
+        public IActionResult Edit(int id)
+        {
+            var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
+            if (claim == null) return NotFound();
+            ViewBag.Lecturers = _lecturers;
+            return View(claim);
+        }
+
+        // POST: Claim/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Claim updated)
+        {
+            var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
+            if (claim == null) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.Lecturers = _lecturers;
+                return View(updated);
+            }
+
+            claim.LecturerId = updated.LecturerId;
+            claim.ClaimTime = updated.ClaimTime;
+            claim.Status = updated.Status;
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Claim/Delete/5
+        public IActionResult Delete(int id)
+        {
+            var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
+            if (claim == null) return NotFound();
+            return View(claim);
+        }
+
+        // POST: Claim/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
+            if (claim != null) _claims.Remove(claim);
+            return RedirectToAction(nameof(Index));
+        }
+
+        
+        public IActionResult Approve(int id, string status)
+        {
+            var claim = _claims.FirstOrDefault(c => c.ClaimId == id);
+            if (claim == null) return NotFound();
+            claim.Status = status;
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}
+
+
+===
+
+@model PROG_MVC_POE_P2.Models.Claim
+
+@{
+    ViewData["Title"] = "Delete Claim";
+}
+
+<h1>Delete Claim</h1>
+<h3>Are you sure you want to delete this claim?</h3>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-2">Lecturer ID</dt>
+    <dd class="col-sm-10">@Model.LecturerId</dd>
+
+    <dt class="col-sm-2">Claim Time</dt>
+    <dd class="col-sm-10">@Model.ClaimTime.ToString("f")</dd>
+
+    <dt class="col-sm-2">Status</dt>
+    <dd class="col-sm-10">@Model.Status</dd>
+</dl>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="ClaimId" />
+    <input type="submit" value="Delete" class="btn btn-danger" /> |
+    <a asp-action="Index">Back to List</a>
+</form>
+
+
+==
+
+@model PROG_MVC_POE_P2.Models.Claim
+@{
+    ViewData["Title"] = "Claim Details";
+    var payment = ViewBag.Payment as PROG_MVC_POE_P2.Models.Payment;
+}
+
+<h1>Claim Details</h1>
+<hr />
+
+<dl class="row">
+    <dt class="col-sm-3">Lecturer ID</dt>
+    <dd class="col-sm-9">@Model.LecturerId</dd>
+
+    <dt class="col-sm-3">Claim Time</dt>
+    <dd class="col-sm-9">@Model.ClaimTime.ToString("f")</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.Status</dd>
+
+    @if (payment != null)
+    {
+        <dt class="col-sm-3">Hours</dt>
+        <dd class="col-sm-9">@payment.NumHours</dd>
+
+        <dt class="col-sm-3">Rate</dt>
+        <dd class="col-sm-9">R @payment.rate</dd>
+
+        <dt class="col-sm-3">Total</dt>
+        <dd class="col-sm-9">R @(payment.NumHours* payment.rate)</dd>
+    }
+</dl>
+
+<a asp-action="Index">Back to List</a>
+
+===
+
+@model PROG_MVC_POE_P2.Models.Claim
+
+@{
+    ViewData["Title"] = "Edit Claim";
+}
+
+<h1>Edit Claim</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="ClaimId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="LecturerId" class="control-label"></label>
+                <input asp-for="LecturerId" class="form-control" />
+                <span asp-validation-for="LecturerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ClaimTime" class="control-label"></label>
+                <input asp-for="ClaimTime" type="datetime-local" class="form-control" />
+                <span asp-validation-for="ClaimTime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <input asp-for="Status" class="form-control" />
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+===
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+    <a asp-controller="Claim" asp-action="Index">Payment Claim</a>
+
+</div>
+
+===
+
+@model PROG_MVC_POE_P2.Models.Claim
+
+@{
+    ViewData["Title"] = "Create Claim";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success text-center">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+
+<h1>Create Claim with Payment</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="LecturerId" class="control-label">Lecturer ID</label>
+                <input asp-for="LecturerId" class="form-control" />
+                <span asp-validation-for="LecturerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ClaimTime" class="control-label">Claim Time</label>
+                <input asp-for="ClaimTime" type="datetime-local" class="form-control" />
+                <span asp-validation-for="ClaimTime" class="text-danger"></span>
+            </div>
+
+            <h4>Payment Details</h4>
+            <div class="form-group">
+                <label>Number of Hours</label>
+                <input name="payment.NumHours" type="number" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+                <label>Hourly Rate (R)</label>
+                <input name="payment.rate" type="number" step="0.01" class="form-control" required />
+            </div>
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Create Claim" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
+===
+
+@model IEnumerable<PROG_MVC_POE_P2.Models.Claim>
+
+@{
+    ViewData["Title"] = "Submit a Payment Claim";
+    var payments = ViewBag.Payments as List<PROG_MVC_POE_P2.Models.Payment>;
+}
+
+<div class="text-center">
+    <h1>Submit a Payment Claim</h1>
+
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Submit New Claim</a>
+    </p>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Claim ID</th>
+                <th>Lecturer ID</th>
+                <th>Claim Time</th>
+                <th>Status</th>
+                <th>Hours</th>
+                <th>Rate (R)</th>
+                <th>Total (R)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var claim in Model)
+                {
+                    var payment = payments?.FirstOrDefault(p => p.PayId == claim.PayId);
+
+                    <tr>
+                        <td>@claim.ClaimId</td>
+                        <td>@claim.LecturerId</td>
+                        <td>@claim.ClaimTime.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>@claim.Status</td>
+                        <td>@(payment?.NumHours ?? 0)</td>
+                        <td>@(payment?.rate.ToString("F2") ?? "0.00")</td>
+                        <td>@((payment != null ? payment.NumHours * payment.rate : 0).ToString("F2"))</td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@claim.ClaimId">Details</a> |
+                            <a asp-action="Edit" asp-route-id="@claim.ClaimId">Edit</a> |
+                            <a asp-action="Delete" asp-route-id="@claim.ClaimId">Delete</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="8" class="text-center">No claims found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+</div>
+
+===
+
+
+namespace PROG_MVC_POE_P2.Models;
+
+public class Lecurer
+{
+    public int LecturerId { get; set; }
+    public string Name { get; set; }
+    public string Faculty { get; set; }
+    public string Position { get; set; }
+}
+
+
+===
+
+
+using System;
+
+namespace PROG_MVC_POE_P2.Models;
+
+public class Claim
+{
+    public int ClaimId { get; set; }
+    public int LecturerId { get; set; }
+    public int PayId { get; set; }
+    public DateTime ClaimTime { get; set; }
+    public string Status { get; set; }
+}
+
+====
+
+namespace PROG_MVC_POE_P2.Models;
+
+public class Payment
+{
+    public int PayId { get; set; }
+    public int NumHours { get; set; }
+    public double rate { get; set; }
+}
+
+====
+
+using System.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
+using PROG_MVC_POE_P2.Models;
+
+namespace PROG_MVC_POE_P2.Controllers
+{
+    public class HomeController : Controller
+    {
+        private readonly ILogger<HomeController> _logger;
+
+        public HomeController(ILogger<HomeController> logger)
+        {
+            _logger = logger;
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+    }
+}// the end of the home controller
+
+

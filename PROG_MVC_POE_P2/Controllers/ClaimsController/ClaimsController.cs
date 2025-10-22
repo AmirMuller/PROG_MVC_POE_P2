@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace PROG_MVC_POE_P2.Controllers
 {
@@ -76,6 +77,25 @@ namespace PROG_MVC_POE_P2.Controllers
             System.IO.File.WriteAllText(_paymentsFilePath, json);
         }
 
+        private List<Lecturer> LoadLecturers()
+        {
+            if (!System.IO.File.Exists(_lecturersFilePath))
+            {
+                //fake data if the file is empty
+                return new List<Lecturer>
+                {
+                    new Lecturer { LecturerId = 1, Name = "Dr. Khumalo", Faculty = "IT", Position = "Senior Lecturer" },
+                    new Lecturer { LecturerId = 2, Name = "Prof. Van Zyl", Faculty = "Engineering", Position = "Professor" },
+                    new Lecturer { LecturerId = 3, Name = "Ms. Naidoo", Faculty = "Science", Position = "Junior Lecturer" },
+                    new Lecturer { LecturerId = 4, Name = "Mr. Stefan", Faculty = "Eng", Position = "Junior Lecturer"}
+                };
+
+            }
+
+            var json = System.IO.File.ReadAllText(_lecturersFilePath);
+            return JsonSerializer.Deserialize<List<Lecturer>>(json) ?? new List<Lecturer>();
+        }
+
         // =========================================================================================
 
 
@@ -108,13 +128,15 @@ namespace PROG_MVC_POE_P2.Controllers
         // GET: Claim/Create
         public IActionResult Create()
         {
+            var lecturers = LoadLecturers();
+            ViewBag.LecturerList = new SelectList(lecturers, "LecturerId", "Name");
             return View();
         }
 
         // POST: Claim/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int LecturerId, IFormFile uploadedFile, double rate, int numHours)
+        public async Task<IActionResult> Create(int LecturerId, IFormFile uploadedFile, double rate, int numHours, string message)
         {
 
             if (LecturerId > 0 && rate > 0 && numHours > 0)
@@ -126,6 +148,7 @@ namespace PROG_MVC_POE_P2.Controllers
                 //new claim
                 var claim = new Claim();
                 claim.LecturerId = LecturerId;
+                claim.Message = message;
 
                 //Handle file uploads
                 if (uploadedFile != null && uploadedFile.Length > 0)
@@ -210,6 +233,7 @@ namespace PROG_MVC_POE_P2.Controllers
             existingClaim.LecturerId = claim.LecturerId;
             existingClaim.ClaimTime = DateTime.Now; 
             existingClaim.Status = "Pending";       
+            existingClaim.Message = claim.Message;
 
             //SAVE DATA
             SavePayments(payments);
