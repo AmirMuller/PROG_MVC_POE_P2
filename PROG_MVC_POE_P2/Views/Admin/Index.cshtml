@@ -1,0 +1,58 @@
+﻿@model IEnumerable<PROG_MVC_POE_P2.Models.ClaimReviewViewModel>
+
+@{
+    ViewData["Title"] = "Admin Claim Review Dashboard";
+}
+
+<h1>Admin Claim Review Dashboard</h1>
+<hr />
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<h2>Claims Awaiting Review</h2>
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Claim ID</th>
+            <th>Lecturer</th>
+            <th>Submission Date</th>
+            <th>Status</th>
+            <th>Claimed Total</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var statusClass = item.Claim.Status == "Pending" ? "table-warning" :
+            item.Claim.Status == "Approved" ? "table-success" :
+            "table-danger";
+
+            <tr class="@statusClass">
+                <td>@item.Claim.ClaimId</td>
+                <td>@item.LecturerName</td>
+                <td>@item.Claim.ClaimTime.ToString("yyyy-MM-dd HH:mm")</td>
+                <td>
+                    <span class="badge @(statusClass.Replace("table-", "bg-"))">
+                        @item.Claim.Status
+                    </span>
+                </td>
+                <td>**R @item.TotalAmount.ToString("N2")**</td>
+                <td>
+                    <a asp-controller="Admin" asp-action="Review" asp-route-id="@item.Claim.ClaimId" class="btn btn-sm btn-primary">
+                        @(item.Claim.Status == "Pending" ? "Review" : "View")
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+</table>

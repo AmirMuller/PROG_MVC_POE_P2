@@ -1,13 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PROG_MVC_POE_P2.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace PROG_MVC_POE_P2.Controllers
@@ -93,7 +87,7 @@ namespace PROG_MVC_POE_P2.Controllers
             }
 
             var json = System.IO.File.ReadAllText(_lecturersFilePath);
-            return JsonSerializer.Deserialize<List<Lecturer>>(json) ?? new List<Lecturer>();
+            return JsonSerializer.Deserialize<List<Lecturer>>(json) ?? new List<Lecturer>(); 
         }
 
         // =========================================================================================

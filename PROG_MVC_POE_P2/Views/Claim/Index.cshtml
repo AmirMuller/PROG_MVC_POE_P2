@@ -1,37 +1,64 @@
 ﻿@model IEnumerable<PROG_MVC_POE_P2.Models.Claim>
 
 @{
-    ViewData["Title"] = "Submit a Payment Claim";
-    var payments = ViewBag.Payments as List<PROG_MVC_POE_P2.Models.Payment>;
+    ViewData["Title"] = "Submitted Payment Claims";
 }
 
 <div class="text-center">
-    <h1>Submit a Payment Claim</h1>
+    <h1>Submitted Payment Claims</h1>
 
-    <p><a asp-action="Create" class="btn btn-primary">Submit New Claim</a></p>
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Submit New Claim</a> |
+        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
+    </p>
 
     <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Lecturer ID</th>
                 <th>Claim Time</th>
-                <th>Status</th>    
-                <th></th>
+                <th>Status</th>      
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             @if (Model != null && Model.Any())
             {
-                foreach (var item in Model)
+                foreach (var item in Model.OrderByDescending(c => c.ClaimTime))
                 {
-                    <tr>
+                        //====================declare variables==============================
+                        string statusClass = item.Status == "Approved" ? "table-success" :
+                                             item.Status == "Rejected" ? "table-danger" :
+                                             "table-warning";
+                        
+                        string badgeClass = item.Status == "Approved" ? "bg-success" :
+                                            item.Status == "Rejected" ? "bg-danger" :
+                                            "bg-warning";
+                        //====================================================================
+
+                    <tr class="@statusClass">
                         <td>@item.LecturerId</td>
                         <td>@item.ClaimTime.ToString("yyyy-MM-dd HH:mm")</td>
-                        <td>@item.Status</td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.ClaimId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.ClaimId">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.ClaimId">Delete</a>
+                            <span class="badge @badgeClass">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>
+                            @*only edit if the status is pending*@
+                            @if (item.Status == "Pending")
+                            {
+                                <a asp-action="Edit" class="btn btn-secondary" asp-route-id="@item.ClaimId">Edit</a> 
+                                
+                            }
+                            else
+                            {
+                                <span class="text-muted">No Edits</span>
+                            }
+
+                            <a asp-action="Details" class="btn btn-secondary" asp-route-id="@item.ClaimId">Details</a>
+                            <a asp-action="Delete" class="btn btn-danger" asp-route-id="@item.ClaimId">Delete</a>
+
                         </td>
                     </tr>
                 }
@@ -43,5 +70,4 @@
         </tbody>
     </table>
 
-    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
 </div>

@@ -1,1 +1,38 @@
-[]
+[
+  {
+    "ClaimId": 1,
+    "LecturerId": 2,
+    "PayId": 1,
+    "ClaimTime": "2025-10-23T22:31:34.9952802+02:00",
+    "Status": "Rejected",
+    "Message": "\n(REJECTED - Admin Reason: no file attached)",
+    "FilePath": null
+  },
+  {
+    "ClaimId": 2,
+    "LecturerId": 3,
+    "PayId": 2,
+    "ClaimTime": "2025-10-23T22:35:58.0656585+02:00",
+    "Status": "Rejected",
+    "Message": "\n(REJECTED - Admin Reason: no file attached )",
+    "FilePath": null
+  },
+  {
+    "ClaimId": 3,
+    "LecturerId": 2,
+    "PayId": 3,
+    "ClaimTime": "2025-10-23T22:38:22.4245451+02:00",
+    "Status": "Approved",
+    "Message": "hey ",
+    "FilePath": "/uploads/7e8e404a-7d20-40c5-83f0-afbd6b6650d4_Camera_Bag.jpg"
+  },
+  {
+    "ClaimId": 4,
+    "LecturerId": 1,
+    "PayId": 4,
+    "ClaimTime": "2025-10-23T22:39:30.0522006+02:00",
+    "Status": "Pending",
+    "Message": null,
+    "FilePath": null
+  }
+]

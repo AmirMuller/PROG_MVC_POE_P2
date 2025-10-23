@@ -1,0 +1,82 @@
+﻿@model PROG_MVC_POE_P2.Models.ClaimReviewViewModel
+
+@{
+    ViewData["Title"] = "Review Claim";
+}
+
+<h1>Review Claim #@Model.Claim.ClaimId</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <h4>Claim Details</h4>
+        <dl class="row">
+            <dt class="col-sm-4">Lecturer Name:</dt>
+            <dd class="col-sm-8">@Model.LecturerName</dd>
+
+            <dt class="col-sm-4">Status:</dt>
+            <dd class="col-sm-8">
+                <span class="badge @(Model.Claim.Status == "Pending" ? "bg-warning" : Model.Claim.Status == "Approved" ? "bg-success" : "bg-danger")">
+                    @Model.Claim.Status
+                </span>
+            </dd>
+
+            <dt class="col-sm-4">Hours Claimed:</dt>
+            <dd class="col-sm-8">@Model.Payment?.NumHours</dd>
+
+            <dt class="col-sm-4">Rate per Hour:</dt>
+            <dd class="col-sm-8">R @Model.Payment?.Rate.ToString("N2")</dd>
+
+            <dt class="col-sm-4">Total Amount:</dt>
+            <dd class="col-sm-8">**R @Model.TotalAmount.ToString("N2")**</dd>
+
+            <dt class="col-sm-4">Lecturer Message:</dt>
+            <dd class="col-sm-8">@Model.Claim.Message</dd>
+
+            <dt class="col-sm-4">Document:</dt>
+            <dd class="col-sm-8">
+                @if (!string.IsNullOrEmpty(Model.Claim.FilePath))
+                {
+                    <a href="@Url.Content(Model.Claim.FilePath)" target="_blank" class="btn btn-sm btn-secondary">View Document</a>
+                }
+                else
+                {
+                    <span>No file attached</span>
+                }
+            </dd>
+        </dl>
+    </div>
+
+    <div class="col-md-6">
+        @if (Model.Claim.Status == "Pending")
+        {
+            <h4>Decision</h4>
+            <form asp-controller="Admin" asp-action="ProcessReview" method="post">
+                <input type="hidden" name="claimId" value="@Model.Claim.ClaimId" />
+
+                <div class="form-group mb-3">
+                    <label for="adminComment">Admin Comment (Optional):</label>
+                    <textarea name="adminComment" id="adminComment" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="btn-group" role="group">
+                    <button type="submit" name="action" value="Approve" class="btn btn-success me-2" onclick="return confirm('Confirm approval for claim #@Model.Claim.ClaimId?');">
+                        Approve
+                    </button>
+                    <button type="submit" name="action" value="Reject" class="btn btn-danger" onclick="return confirm('Confirm rejection for claim #@Model.Claim.ClaimId?');">
+                        Reject
+                    </button>
+                </div>
+            </form>
+        }
+        else
+        {
+            <h4>Review Complete</h4>
+            <p>This claim has already been **@Model.Claim.Status**.</p>
+        }
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-controller="Admin" class="btn btn-secondary" asp-action="Index">Back to Review Dashboard</a>
+</div>
