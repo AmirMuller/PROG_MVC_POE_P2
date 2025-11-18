@@ -44,7 +44,7 @@
                         @item.Claim.Status
                     </span>
                 </td>
-                <td>**R @item.TotalAmount.ToString("N2")**</td>
+                <td>R @item.TotalAmount.ToString("N2")</td>
                 <td>
                     <a asp-controller="Admin" asp-action="Review" asp-route-id="@item.Claim.ClaimId" class="btn btn-sm btn-primary">
                         @(item.Claim.Status == "Pending" ? "Review" : "View")

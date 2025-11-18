@@ -3,13 +3,21 @@ using System.Collections.Generic;
 
 namespace PROG_MVC_POE_P2.Models;
 
-public partial class Claim
+public partial class ClaimReviewView
 {
     public int ClaimId { get; set; }
 
     public int LecturerId { get; set; }
 
+    public string LecturerName { get; set; } = null!;
+
     public int PayId { get; set; }
+
+    public int NumHours { get; set; }
+
+    public double Rate { get; set; }
+
+    public double TotalAmount { get; set; }
 
     public DateTime ClaimTime { get; set; }
 
@@ -19,7 +27,5 @@ public partial class Claim
 
     public string? FilePath { get; set; }
 
-    public virtual Lecturer Lecturer { get; set; } = null!;
-
-    public virtual Payment Pay { get; set; } = null!;
+    public int? AdminComment { get; set; }
 }

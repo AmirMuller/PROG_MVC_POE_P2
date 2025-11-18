@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36603.0 d17.14
+VisualStudioVersion = 17.14.36603.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PROG_MVC_POE_P2", "PROG_MVC_POE_P2\PROG_MVC_POE_P2.csproj", "{D9566C4E-458C-4C2A-A7E4-0C67EB94FFB5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "TestProject1\TestProject1.csproj", "{61349C8F-E2BA-4D54-B9FD-A436C11EC2F0}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "dbClaimsDatabase", "dbClaimsDatabase\dbClaimsDatabase.sqlproj", "{201B738A-36D7-4043-81DB-B76F69C05325}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,16 @@ Global
 		{D9566C4E-458C-4C2A-A7E4-0C67EB94FFB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D9566C4E-458C-4C2A-A7E4-0C67EB94FFB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D9566C4E-458C-4C2A-A7E4-0C67EB94FFB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61349C8F-E2BA-4D54-B9FD-A436C11EC2F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61349C8F-E2BA-4D54-B9FD-A436C11EC2F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61349C8F-E2BA-4D54-B9FD-A436C11EC2F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61349C8F-E2BA-4D54-B9FD-A436C11EC2F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{201B738A-36D7-4043-81DB-B76F69C05325}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{201B738A-36D7-4043-81DB-B76F69C05325}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{201B738A-36D7-4043-81DB-B76F69C05325}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{201B738A-36D7-4043-81DB-B76F69C05325}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{201B738A-36D7-4043-81DB-B76F69C05325}.Release|Any CPU.Build.0 = Release|Any CPU
+		{201B738A-36D7-4043-81DB-B76F69C05325}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -61,7 +61,8 @@ namespace PROG_MVC_POE_P2.Controllers
                     new Lecturer { LecturerId = 1, Name = "Dr. Khumalo", Faculty = "IT", Position = "Senior Lecturer" },
                     new Lecturer { LecturerId = 2, Name = "Prof. Van Zyl", Faculty = "Engineering", Position = "Professor" },
                     new Lecturer { LecturerId = 3, Name = "Ms. Naidoo", Faculty = "Science", Position = "Junior Lecturer" },
-                    new Lecturer { LecturerId = 4, Name = "Mr. Stefan", Faculty = "Eng", Position = "Junior Lecturer"}
+                    new Lecturer { LecturerId = 4, Name = "Mr. Stefan", Faculty = "Eng", Position = "Junior Lecturer"},
+                    new Lecturer { LecturerId = 5, Name = "Dr. Hugo", Faculty = "Eng", Position = "Senior Lecturer"}
                 };
             }
             var json = System.IO.File.ReadAllText(_lecturersFilePath);

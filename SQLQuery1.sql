@@ -1,0 +1,26 @@
+﻿CREATE TABLE Lecturer (
+    LecturerId INT IDENTITY PRIMARY KEY,
+    Name NVARCHAR(100) NOT NULL,
+    Faculty NVARCHAR(100) NOT NULL,
+    Position NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Payment (
+    PayId INT IDENTITY PRIMARY KEY,
+    NumHours INT NOT NULL,
+    Rate FLOAT NOT NULL
+);
+
+CREATE TABLE Claim (
+    ClaimId INT IDENTITY PRIMARY KEY,
+    LecturerId INT NOT NULL,
+    PayId INT NOT NULL,
+    ClaimTime DATETIME NOT NULL,
+    Status NVARCHAR(50) NOT NULL,
+    Message NVARCHAR(MAX) NULL,
+    FilePath NVARCHAR(MAX) NULL,
+    
+    FOREIGN KEY (LecturerId) REFERENCES Lecturer(LecturerId),
+    FOREIGN KEY (PayId) REFERENCES Payment(PayId)
+);
+
