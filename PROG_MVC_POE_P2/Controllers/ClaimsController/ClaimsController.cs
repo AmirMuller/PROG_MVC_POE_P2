@@ -1,297 +1,115 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PROG_MVC_POE_P2.Models;
-using System.IO;
-using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using PROG_MVC_POE_P2.Filters;
+using PROG_MVC_POE_P2.Data.Models;
 
-namespace PROG_MVC_POE_P2.Controllers
+namespace PROG_MVC_POE_P2.Controllers;
+
+[AuthorizeRole("Lecturer", "HR", "Admin")]
+public class ClaimsController : Controller
 {
-    public class ClaimController : Controller
+    private readonly ClaimsDbContext _context;
+    private readonly IWebHostEnvironment _env;
+
+    public ClaimsController(ClaimsDbContext context, IWebHostEnvironment env)
     {
-        // Removed the static lists
+        _context = context;
+        _env = env;
+    }
 
-        private readonly string _claimsFilePath;
-        private readonly string _paymentsFilePath;
-        private readonly string _lecturersFilePath;
+    public IActionResult Create()
+    {
+        var userId = HttpContext.Session.GetInt32("UserId") ?? 0;
+        var lecturer = _context.Lecturers.Find(userId);
 
-        private readonly IWebHostEnvironment _env;
+        ViewBag.Lecturer = lecturer;
+        return View();
+    }
 
-        public ClaimController(IWebHostEnvironment env)
+    public async Task<IActionResult> Index()
+    {
+        var userId = HttpContext.Session.GetInt32("UserId");
+
+        if (userId == null)
+            return RedirectToAction("Login", "Account");
+
+        var claims = await _context.Claims
+            .Where(c => c.LecturerId == userId)
+            .OrderByDescending(c => c.ClaimTime)
+            .ToListAsync();
+
+        return View(claims);
+    }
+
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(int numHours, IFormFile? uploadedFile, string? message)
+    {
+        var userId = HttpContext.Session.GetInt32("UserId");
+        if (userId is null)
+            return RedirectToAction("Login", "Account");
+
+        var lecturer = await _context.Lecturers.FindAsync(userId.Value);
+        if (lecturer == null)
+            return NotFound();
+
+        // Validate hours
+        if (numHours <= 0 || numHours > 180)
         {
-            _env = env;
-            var dataPath = Path.Combine(_env.ContentRootPath, "Data");
+            TempData["ErrorMessage"] = "Hours must be between 1 and 180.";
+            return RedirectToAction("Create");
+        }
 
-            if (!Directory.Exists(dataPath))
+        // Validate hourly rate
+        if (lecturer.HourlyRate <= 0)
+        {
+            TempData["ErrorMessage"] = "Hourly rate not set by HR.";
+            return RedirectToAction("Create");
+        }
+
+        // Create payment
+        var payment = new Payment
+        {
+            NumHours = numHours,
+            Rate = lecturer.HourlyRate
+        };
+
+        _context.Payments.Add(payment);
+        await _context.SaveChangesAsync();
+
+        // Create claim
+        var claim = new Claim
+        {
+            LecturerId = lecturer.LecturerId,
+            PayId = payment.PayId,
+            ClaimTime = DateTime.Now,
+            Status = "Pending",
+            Message = message
+        };
+
+        // Handle file upload
+        if (uploadedFile != null && uploadedFile.Length > 0)
+        {
+            var folder = Path.Combine(_env.WebRootPath, "uploads");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            var filename = Guid.NewGuid().ToString() + "_" + Path.GetFileName(uploadedFile.FileName);
+            var filePath = Path.Combine(folder, filename);
+
+            using (var fs = new FileStream(filePath, FileMode.Create))
             {
-                Directory.CreateDirectory(dataPath);
+                await uploadedFile.CopyToAsync(fs);
             }
 
-            //set the full file paths
-            _claimsFilePath = Path.Combine(dataPath, "claims.json");
-            _paymentsFilePath = Path.Combine(dataPath, "payments.json");
+            claim.FilePath = "/uploads/" + filename;
         }
 
-        //=============================================================================
-        //HELPER methods
-        private List<Claim> LoadClaims()
-        {
-            if (!System.IO.File.Exists(_claimsFilePath))
-            {
-                return new List<Claim>();
-            }
+        _context.Claims.Add(claim);
+        await _context.SaveChangesAsync();
 
-            var json = System.IO.File.ReadAllText(_claimsFilePath);
-            // Deserialize text to list
-            return JsonSerializer.Deserialize<List<Claim>>(json) ?? new List<Claim>();
-        }
-
-        private void SaveClaims(List<Claim> claims)
-        {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-
-            var json = JsonSerializer.Serialize(claims, options);
-
-            System.IO.File.WriteAllText(_claimsFilePath, json);
-        }
-
-        private List<Payment> LoadPayments()
-        {
-            if (!System.IO.File.Exists(_paymentsFilePath))
-            {
-                return new List<Payment>();
-            }
-            var json = System.IO.File.ReadAllText(_paymentsFilePath);
-            return JsonSerializer.Deserialize<List<Payment>>(json) ?? new List<Payment>();
-        }
-
-        private void SavePayments(List<Payment> payments)
-        {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            var json = JsonSerializer.Serialize(payments, options);
-            System.IO.File.WriteAllText(_paymentsFilePath, json);
-        }
-
-        private List<Lecturer> LoadLecturers()
-        {
-            if (!System.IO.File.Exists(_lecturersFilePath))
-            {
-                //fake data if the file is empty
-                return new List<Lecturer>
-                {
-                    new Lecturer { LecturerId = 1, Name = "Dr. Khumalo", Faculty = "IT", Position = "Senior Lecturer" },
-                    new Lecturer { LecturerId = 2, Name = "Prof. Van Zyl", Faculty = "Engineering", Position = "Professor" },
-                    new Lecturer { LecturerId = 3, Name = "Ms. Naidoo", Faculty = "Science", Position = "Junior Lecturer" },
-                    new Lecturer { LecturerId = 4, Name = "Mr. Stefan", Faculty = "Eng", Position = "Junior Lecturer"}
-                };
-
-            }
-
-            var json = System.IO.File.ReadAllText(_lecturersFilePath);
-            return JsonSerializer.Deserialize<List<Lecturer>>(json) ?? new List<Lecturer>(); 
-        }
-
-        // =========================================================================================
-
-
-        // GET: Claim
-        public IActionResult Index()
-        {
-            //LOAD DATA
-            var claims = LoadClaims();
-            var payments = LoadPayments();
-
-            var claimViewList = claims.Select(c =>
-            {
-                var payment = payments.FirstOrDefault(p => p.PayId == c.PayId);
-                return new
-                {
-                    c.ClaimId,
-                    c.LecturerId,
-                    c.ClaimTime,
-                    c.Status,
-                    Payment = payment,
-                    Total = payment != null ? payment.NumHours * payment.Rate : 0
-                };
-            }).ToList();
-
-            ViewBag.ClaimPayments = claimViewList;
-
-            return View(claims);
-        }
-
-        // GET: Claim/Create
-        public IActionResult Create()
-        {
-            var lecturers = LoadLecturers();
-            ViewBag.LecturerList = new SelectList(lecturers, "LecturerId", "Name");
-            return View();
-        }
-
-        // POST: Claim/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(int LecturerId, IFormFile uploadedFile, double rate, int numHours, string message)
-        {
-
-            if (LecturerId > 0 && rate > 0 && numHours > 0)
-            {
-                //LOAD DATA
-                var claims = LoadClaims();
-                var payments = LoadPayments();
-
-                //new claim
-                var claim = new Claim();
-                claim.LecturerId = LecturerId;
-                claim.Message = message;
-
-                //Handle file uploads
-                if (uploadedFile != null && uploadedFile.Length > 0)
-                {
-                    var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads");
-                    if (!Directory.Exists(uploadsFolder))
-                        Directory.CreateDirectory(uploadsFolder);
-
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(uploadedFile.FileName);
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await uploadedFile.CopyToAsync(fileStream);
-                    }
-
-                    claim.FilePath = "/uploads/" + uniqueFileName;
-                }
-
-                claim.ClaimId = claims.Count > 0 ? claims.Max(c => c.ClaimId) + 1 : 1;
-                claim.ClaimTime = DateTime.Now;
-                claim.Status = "Pending";
-
-                // Create and link Payment
-                var payment = new Payment
-                {
-                    PayId = payments.Count > 0 ? payments.Max(p => p.PayId) + 1 : 1,
-                    NumHours = numHours,
-                    Rate = rate
-                };
-
-                payments.Add(payment);
-                claim.PayId = payment.PayId;
-
-                claims.Add(claim);
-
-                //SAVE DATA
-                SavePayments(payments);
-                SaveClaims(claims);
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            // TempData["ErrorMessage"] = "All fields are required.";
-            return View();
-        }
-
-        // GET: Claim/Edit/5
-        public IActionResult Edit(int id)
-        {
-            //LOAD DATA
-            var claims = LoadClaims();
-            var payments = LoadPayments();
-
-            var claim = claims.FirstOrDefault(c => c.ClaimId == id);
-            if (claim == null) return NotFound();
-
-            var payment = payments.FirstOrDefault(p => p.PayId == claim.PayId);
-            ViewBag.Payment = payment;
-            return View(claim);
-        }
-
-        // POST: Claim/Edit
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(Claim claim, Payment payment) 
-        {
-            //LOAD DATA
-            var claims = LoadClaims();
-            var payments = LoadPayments();
-
-            var existingClaim = claims.FirstOrDefault(c => c.ClaimId == claim.ClaimId);
-            if (existingClaim == null) return NotFound();
-
-            var existingPayment = payments.FirstOrDefault(p => p.PayId == existingClaim.PayId);
-            if (existingPayment != null)
-            {
-                existingPayment.NumHours = payment.NumHours;
-                existingPayment.Rate = payment.Rate;
-            }
-
-            existingClaim.LecturerId = claim.LecturerId;
-            existingClaim.ClaimTime = DateTime.Now; 
-            existingClaim.Status = "Pending";       
-            existingClaim.Message = claim.Message;
-
-            //SAVE DATA
-            SavePayments(payments);
-            SaveClaims(claims);
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: Claim/Details/5
-        public IActionResult Details(int id)
-        {
-            //LOAD DATA
-            var claims = LoadClaims();
-            var payments = LoadPayments();
-
-            var claim = claims.FirstOrDefault(c => c.ClaimId == id);
-            if (claim == null) return NotFound();
-
-            var payment = payments.FirstOrDefault(p => p.PayId == claim.PayId);
-            ViewBag.Payment = payment;
-
-            return View(claim);
-        }
-
-        // GET: Claim/Delete/5
-        public IActionResult Delete(int id)
-        {
-            //LOAD DATA
-            var claims = LoadClaims();
-
-            var claim = claims.FirstOrDefault(c => c.ClaimId == id);
-            if (claim == null) return NotFound();
-
-            // Load payment info for the delete
-            var payments = LoadPayments();
-            ViewBag.Payment = payments.FirstOrDefault(p => p.PayId == claim.PayId);
-
-            return View(claim);
-        }
-
-        // POST: Claim/Delete
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int ClaimId)
-        {
-            //LOAD DATA
-            var claims = LoadClaims();
-            var payments = LoadPayments();
-
-            var claim = claims.FirstOrDefault(c => c.ClaimId == ClaimId);
-            if (claim != null)
-            {
-                var payment = payments.FirstOrDefault(p => p.PayId == claim.PayId);
-                if (payment != null)
-                    payments.Remove(payment);
-
-                claims.Remove(claim);
-
-                //SAVE DATA
-                SavePayments(payments);
-                SaveClaims(claims);
-            }
-
-            return RedirectToAction(nameof(Index));
-        }
+        TempData["SuccessMessage"] = "Claim submitted.";
+        return RedirectToAction(nameof(Index));
     }
 }

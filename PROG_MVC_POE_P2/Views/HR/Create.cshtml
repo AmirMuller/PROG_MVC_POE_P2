@@ -1,0 +1,29 @@
+﻿@model PROG_MVC_POE_P2.Data.Models.Lecturer
+<h2>Create Lecturer</h2>
+<form method="post">
+	<label>Name</label>
+	<input name="Name" class="form-control" />
+
+
+	<label>Surname</label>
+	<input name="Surname" class="form-control" />
+
+
+	<label>Email</label>
+	<input name="Email" class="form-control" />
+
+
+	<label>Hourly Rate</label>
+	<input name="HourlyRate" type="number" step="0.01" class="form-control" />
+
+
+	<label>Role</label>
+	<select name="Role" class="form-control">
+		<option>Lecturer</option>
+		<option>Admin</option>
+		<option>HR</option>
+	</select>
+
+
+	<button class="btn btn-primary mt-2">Create</button>
+</form>

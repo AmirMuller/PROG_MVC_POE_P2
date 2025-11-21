@@ -1,0 +1,32 @@
+﻿@model PROG_MVC_POE_P2.Data.Models.Lecturer
+<h2>Edit Lecturer</h2>
+<form method="post">
+	<input type="hidden" name="LecturerId" value="@Model.LecturerId" />
+
+
+	<label>Name</label>
+	<input name="Name" class="form-control" value="@Model.Name" />
+
+
+	<label>Surname</label>
+	<input name="Surname" class="form-control" value="@Model.Surname" />
+
+
+	<label>Email</label>
+	<input name="Email" class="form-control" value="@Model.Email" />
+
+
+	<label>Hourly Rate</label>
+	<input name="HourlyRate" type="number" step="0.01" class="form-control" value="@Model.HourlyRate" />
+
+
+	<label>Role</label>
+	<select name="Role" class="form-control">
+		<option selected="@(Model.Role == "Lecturer")">Lecturer</option>
+		<option selected="@(Model.Role == "Admin")">Admin</option>
+		<option selected="@(Model.Role == "HR")">HR</option>
+	</select>
+
+
+	<button class="btn btn-success mt-2">Save</button>
+</form>

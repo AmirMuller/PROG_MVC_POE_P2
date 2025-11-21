@@ -1,61 +1,61 @@
 ﻿@{
     ViewData["Title"] = "Create Claim";
+    var lecturer = ViewBag.Lecturer as PROG_MVC_POE_P2.Data.Models.Lecturer;
+    double rate = lecturer?.HourlyRate ?? 0;
 }
-
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success text-center">
-        @TempData["SuccessMessage"]
-    </div>
-}
-
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger text-center">
-        @TempData["ErrorMessage"]
-    </div>
-}
-
 
 <h1>Create Claim</h1>
-<hr />
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" enctype="multipart/form-data">
-
-            <div asp-validation-summary="All" class="text-danger"></div>
-
-            <div class="form-group">
-                <label for="LecturerId" class="control-label">Lecturer Name</label>
-                @Html.DropDownList("LecturerId", (SelectList)ViewBag.LecturerList, "-- Select Your Name --", new { @class = "form-control", required = "required" })
-            </div>
-
-            <div class="form-group">
-                <label>Number of Hours</label>
-                <input type="number" name="numHours" class="form-control" step="1" />
-            </div>
-
-            <div class="form-group">
-                <label>Rate per Hour</label>
-                <input type="number" name="rate" class="form-control" step="10" />
-            </div>
-
-            <div class="form-group">
-                <label>Message</label>
-                <textarea name="message" class="form-control" rows="3"></textarea>
-            </div>
-
-            <div class="form-group">
-                <label>Upload Supporting Document</label>
-                <input type="file" name="uploadedFile" class="form-control" />
-            </div>
-
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Lecturer</label>
+        <input class="form-control" readonly value="@lecturer?.Name" />
     </div>
-</div>
 
-<div>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</div>
+    <div class="form-group">
+        <label>Hourly Rate (pulled from HR)</label>
+        <input id="rate" class="form-control" readonly value="@rate" />
+    </div>
+
+    <div class="form-group">
+        <label>Hours Worked</label>
+        <input id="hours" name="numHours" class="form-control" type="number" min="1" max="180" required />
+        <small id="hoursHelp" class="form-text text-muted">Max 180 hours per month.</small>
+    </div>
+
+    <div class="form-group">
+        <label>Total</label>
+        <input id="total" class="form-control" readonly />
+    </div>
+
+    <div class="form-group">
+        <label>Upload Document</label>
+        <input type="file" name="uploadedFile" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Message</label>
+        <textarea name="message" class="form-control"></textarea>
+    </div>
+
+    <button class="btn btn-primary mt-2">Submit</button>
+</form>
+
+@section Scripts {
+    <script>
+        const rate = parseFloat(document.getElementById('rate').value || '0');
+        const hoursInput = document.getElementById('hours');
+        const totalInput = document.getElementById('total');
+
+        hoursInput.addEventListener('input', () => {
+            const h = parseFloat(hoursInput.value || 0);
+            if (h > 180) {
+                alert('Maximum allowed hours is 180.');
+                hoursInput.value = 180;
+                totalInput.value = (180 * rate).toFixed(2);
+                return;
+            }
+            totalInput.value = (h * rate).toFixed(2);
+        });
+    </script>
+}

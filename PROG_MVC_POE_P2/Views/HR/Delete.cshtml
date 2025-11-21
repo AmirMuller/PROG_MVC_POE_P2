@@ -1,0 +1,7 @@
+﻿@model PROG_MVC_POE_P2.Data.Models.Lecturer
+<h2>Delete Lecturer</h2>
+<p>Are you sure you want to delete @Model.Name @Model.Surname?</p>
+<form method="post">
+	<input type="hidden" name="LecturerId" value="@Model.LecturerId" />
+	<button class="btn btn-danger">Delete</button>
+</form>
